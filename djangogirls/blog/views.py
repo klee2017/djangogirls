@@ -1,4 +1,8 @@
+from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from django.shortcuts import render
+
+User = get_user_model()
 
 from .models import Post
 
@@ -12,6 +16,7 @@ def post_list(request):
     }
     return render(request, 'blog/post_list.html', context)
 
+
 def post_detail(request, pk):
     # Post 인스턴스 1개만 가져옴, 변수명 post
 
@@ -22,14 +27,38 @@ def post_detail(request, pk):
     except Post.DoesNotExist:
         return HttpResponse('No Post', status=404)
     context = {
-        'post':post,
+        'post': post,
     }
     return render(request, 'blog/post_detail.html', context)
 
+
 def post_add(request):
-    if request.method == 'POST':
-        return HttpResponse('POST request')
-    elif request.method == 'GET':
+    # post_list.html에 post_add로 갈 수 있는 버튼 링크 추가
+    #
+    # post_form.html에 checkbox를 추가
+    #   이를 이용해서 publish 여부를 결정
+    #
+    # Post 생성 완료 후(DB에 저장 후), post_list 페이지로 이동
+    #   http://docs.djangoproject.com/ko/1.11/topics/http/shortcuts/#redirect
+    #
+
+    if request.method == 'POST' and request.POST.get('title') and request.POST.get('content'):
+        # request.POST에서 'title', 'content'키에 해당하는 value를 받아
+        # 새 Post 객체 생성
+        # 생성 후에 해당 객체의 title, content를 HttpResponse로 전달
+
+        # title이나 content값이 오지 않았을 경우에는 객체를 생성하지 않고 다시 작성페이지로 이동
+
+        title = request.POST['title']
+        content = request.POST['content']
+        author = User.objects.get(username='kay')
+        post = Post(
+            author=author,
+            title=title,
+            content=content)
+        post.publish()
+        return HttpResponse('{}{}'.format(post.title, post.content))
+    else:
         context = {
 
         }

@@ -33,14 +33,21 @@ def post_detail(request, pk):
 
 
 def post_add(request):
-    # post_list.html에 post_add로 갈 수 있는 버튼 링크 추가
+    # post_list.html에 post_add로 갈 수 있는 버튼링크 추가 ({% url %}태그 사용해서 동적으로 구성)
     #
     # post_form.html에 checkbox를 추가
-    #   이를 이용해서 publish 여부를 결정
+    #   이를 이용해서 publish여부를 결정
     #
-    # Post 생성 완료 후(DB에 저장 후), post_list 페이지로 이동
-    #   http://docs.djangoproject.com/ko/1.11/topics/http/shortcuts/#redirect
+    # Post생성 완료 후(DB에 저장 후), post_list페이지로 이동
+    #   https://docs.djangoproject.com/ko/1.11/topics/http/shortcuts/#redirect
+    #    extra) 작성한 Post에 해당하는 post_detail페이지로 이동
     #
+    # Post생성시 Post.objects.create()메서드 사용
+    #
+    # extra) Post delete기능 구현
+    #   def post_delete(request, pk):
+    #       (POST요청에서만 동작해야함)
+    #       -> pk에 해당하는 Post를 삭제하고, post_list페이지로 이동
 
     if request.method == 'POST' and request.POST.get('title') and request.POST.get('content'):
         # request.POST에서 'title', 'content'키에 해당하는 value를 받아

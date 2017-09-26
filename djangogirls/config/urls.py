@@ -24,5 +24,5 @@ urlpatterns = [
     # post /< 1 or more number >/ 이 가능하도록 정규표현식
     # 해당 숫자는 그룹으로 감싸고 'pk'라는 그룹명을 지정
     url(r'^post/(?P<pk>\d+)/', post_detail, name='post_detail'),
-    url(r'')
+    url(r'^post/add/', post_add, name='post_add'),
 ]

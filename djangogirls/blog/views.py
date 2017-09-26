@@ -26,6 +26,15 @@ def post_detail(request, pk):
     }
     return render(request, 'blog/post_detail.html', context)
 
+def post_add(request):
+    if request.method == 'POST':
+        return HttpResponse('POST request')
+    elif request.method == 'GET':
+        context = {
+
+        }
+        return render(request, 'blog/post_form.html', context)
+
 # View(Controller) 구현
 # post_detail 기능을 하는 함수를 구현
 # 'post'라는 key로 Post.objects.first()에 해당하는 Post 객체를 전달

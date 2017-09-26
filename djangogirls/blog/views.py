@@ -5,15 +5,22 @@ from .models import Post
 
 def post_list(request):
     # post_list view가 published_date가 존재하는 Post목록만 보여주도록
-    posts = Post.objects.filter(published_date__isnull=False)
+    posts = Post.objects.all()
     context = {
         # posts key의 value는 QuerySet
         'posts': posts,
     }
     return render(request, 'blog/post_list.html', context)
 
-def post_detail(request):
-    post = Post.objects.first()
+def post_detail(request, pk):
+    # Post 인스턴스 1개만 가져옴, 변수명 post
+
+    # get에 실패했을 때
+    # HTTP로 문자열을 돌려주려면
+    try:
+        post = Post.objects.get(pk=pk)
+    except Post.DoesNotExist:
+        return HttpResponse('No Post', status=404)
     context = {
         'post':post,
     }

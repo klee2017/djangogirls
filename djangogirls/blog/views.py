@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 User = get_user_model()
 
@@ -49,27 +49,38 @@ def post_add(request):
     #       (POST요청에서만 동작해야함)
     #       -> pk에 해당하는 Post를 삭제하고, post_list페이지로 이동
 
-    if request.method == 'POST' and request.POST.get('title') and request.POST.get('content'):
-        # request.POST에서 'title', 'content'키에 해당하는 value를 받아
-        # 새 Post 객체 생성
-        # 생성 후에 해당 객체의 title, content를 HttpResponse로 전달
-
-        # title이나 content값이 오지 않았을 경우에는 객체를 생성하지 않고 다시 작성페이지로 이동
-
-        title = request.POST['title']
-        content = request.POST['content']
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        is_publish = bool(request.POST.get('is_publish'))
         author = User.objects.get(username='kay')
-        post = Post(
-            author=author,
-            title=title,
-            content=content)
-        post.publish()
-        return HttpResponse('{}{}'.format(post.title, post.content))
-    else:
-        context = {
 
+        if title and content:
+            post = Post.objects.create(
+                author=author,
+                title=title,
+                content=content,
+            )
+            if is_publish:
+                post.publish()
+            else:
+                post.save()
+            return redirect('post_detail', pk=post.pk)
+
+        context = {
+            'title':title,
+            'content':content,
         }
-        return render(request, 'blog/post_form.html', context)
+
+    else:
+        context = {}
+
+    return render(request, 'blog/post_form.html', context)
+            # request.POST에서 'title', 'content'키에 해당하는 value를 받아
+            # 새 Post 객체 생성
+            # 생성 후에 해당 객체의 title, content를 HttpResponse로 전달
+
+            # title이나 content값이 오지 않았을 경우에는 객체를 생성하지 않고 다시 작성페이지로 이동
 
 # View(Controller) 구현
 # post_detail 기능을 하는 함수를 구현
@@ -82,3 +93,11 @@ def post_add(request):
 
 # UrlResolver(urls.py)
 # /post/detail/url을 'post_detail' 뷰와 연결
+
+def post_delete(request, pk):
+    if request.method == 'POST':
+        post = Post.objects.get(pk=pk)
+        post.delete()
+        return redirect('post_list')
+    else:
+        return HttpResponse('Permission denied', status=403)

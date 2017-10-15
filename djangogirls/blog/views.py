@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
@@ -101,3 +102,18 @@ def post_delete(request, pk):
         return redirect('post_list')
     else:
         return HttpResponse('Permission denied', status=403)
+
+
+def listing(request):
+    post_list = Post.objects.all()
+    paginator = Paginator(post_list, 5)
+
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+
+    return render(request, 'post_list.html', {'posts':posts})
